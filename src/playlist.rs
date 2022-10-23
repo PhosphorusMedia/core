@@ -1,4 +1,4 @@
-use std::{ffi::OsString};
+use std::ffi::OsString;
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
