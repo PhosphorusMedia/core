@@ -57,7 +57,7 @@ impl Eq for Song {}
 /// a song.
 #[derive(Deserialize, Serialize)]
 pub struct SongDetails {
-    name: Option<String>,
+    name: String,
     artist: Option<String>,
     year: Option<u16>,
     duration: Option<Duration>,
@@ -66,10 +66,10 @@ pub struct SongDetails {
 impl Default for SongDetails {
     fn default() -> Self {
         Self {
-            name: None,
+            name: String::new(),
             artist: None,
             year: None,
-            duration: None,
+            duration: None
         }
     }
 }
@@ -95,7 +95,7 @@ impl SongDetails {
     }
 
     pub fn set_name(&mut self, name: &str) {
-        self.name = Some(String::from(name));
+        self.name = String::from(name);
     }
 
     pub fn set_artist(&mut self, artist: &str) {
@@ -110,11 +110,8 @@ impl SongDetails {
         self.duration = Some(duration);
     }
 
-    pub fn name(&self) -> Option<&str> {
-        if let Some(name) = &self.name {
-            return Some(&name[..]);
-        }
-        None
+    pub fn name(&self) -> &str {
+        &self.name
     }
 
     pub fn artist(&self) -> Option<&str> {
@@ -130,5 +127,15 @@ impl SongDetails {
 
     pub fn duration(&self) -> Option<&Duration> {
         self.duration.as_ref()
+    }
+
+    pub fn duration_str(&self) -> Option<String> {
+        if let Some(duration) = self.duration {
+            let secs = duration.as_secs();
+            let mins: u64 = secs / 60;
+            return Some(format!("{}:{}", mins, secs - mins * 60));
+        }
+
+        None
     }
 }

@@ -1,6 +1,10 @@
 use std::{collections::HashMap, ffi::OsString, fmt::Display, path::PathBuf};
 
-use crate::{playlist::Playlist, song::Song};
+use crate::song::Song;
+
+pub use self::playlist::Playlist;
+
+mod playlist;
 
 #[derive(Debug)]
 pub enum PlaylistManagerError {
@@ -83,7 +87,10 @@ impl Drop for PlaylistManager {
         for song in songs {
             let file_name = crate::file_name_from_song(song);
             songs_meta.push(file_name);
-            let _ = std::fs::write(songs_meta.as_path(), serde_json::to_string(song.details()).unwrap());
+            let _ = std::fs::write(
+                songs_meta.as_path(),
+                serde_json::to_string(song.details()).unwrap(),
+            );
             songs_meta.pop();
         }
 
