@@ -20,6 +20,11 @@ impl QueueManager {
         self.songs.is_empty()
     }
 
+    /// Returns all the songs in the queue
+    pub fn songs(&self) -> Vec<&Song> {
+        self.songs.iter().map(|song| song).collect()
+    }
+
     /// Returns a list holding the name of songs in the queue
     pub fn songs_names(&self) -> Vec<&str> {
         self.songs
