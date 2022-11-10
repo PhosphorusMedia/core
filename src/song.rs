@@ -132,8 +132,18 @@ impl SongDetails {
     pub fn duration_str(&self) -> Option<String> {
         if let Some(duration) = self.duration {
             let secs = duration.as_secs();
-            let mins: u64 = secs / 60;
-            return Some(format!("{}:{}", mins, secs - mins * 60));
+            let mut mins: u64 = secs / 60;
+            if mins > 60 {
+                let hours: u64 = mins / 60;
+                mins = mins - hours * 60;
+                return Some(format!(
+                    "{}:{:02}:{:02}",
+                    hours,
+                    mins,
+                    secs - hours * 3600 - mins * 60
+                ));
+            }
+            return Some(format!("{:02}:{:02}", mins, secs - mins * 60));
         }
 
         None
