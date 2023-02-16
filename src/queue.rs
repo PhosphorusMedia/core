@@ -71,7 +71,7 @@ impl QueueManager {
     ///
     /// A call to `next` followed by a call to `previous` will
     /// results in the calls returning the same song, so to actually
-    /// go back `previous` will have to be called another time.
+    /// go back, `previous` will have to be called another time.
     pub fn previous(&mut self) -> Option<&Song> {
         if self.current > 0 {
             self.current -= 1;
@@ -81,7 +81,7 @@ impl QueueManager {
         None
     }
 
-    /// Remove a song from the queue based on a index
+    /// Remove a song from the queue based on an index
     pub fn remove(&mut self, index: usize) {
         if index < self.songs.len() {
             self.songs.remove(index);
