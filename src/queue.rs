@@ -1,4 +1,4 @@
-use crate::song::{Song, SongDetails};
+use crate::{song::{Song, SongDetails}, playlist_manager::Playlist};
 
 /// Handles a reproduction queue
 pub struct QueueManager {
@@ -97,6 +97,28 @@ impl QueueManager {
     pub fn clear_pending(&mut self) {
         if self.current + 1 < self.songs.len() {
             self.songs.drain(self.current + 1..);
+        }
+    }
+
+    /// Queue content is set to a playlist. Previous content is
+    /// removed. The `active` parameter indicates what's the song
+    /// that should be the `current` one after the queue update.
+    /// If the value excedes playlist size, `current` is set to
+    /// the latter, so the queue should look like fully already played.
+    /// 
+    /// #### NOTE
+    /// A playlist reference is received, and every song has
+    /// to be cloned to be pushed in the queue.
+    pub fn set_on_playlist(&mut self, playlist: &Playlist, active: usize) {
+        self.clear();
+        for song in playlist.songs() {
+            self.push(song.clone());
+        }
+
+        if active < playlist.songs().len() {
+            self.current = active;
+        } else {
+            self.current = playlist.songs().len();
         }
     }
 }

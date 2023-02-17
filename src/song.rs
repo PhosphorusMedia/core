@@ -55,7 +55,7 @@ impl Eq for Song {}
 
 /// Holds detailed information about
 /// a song.
-#[derive(Deserialize, Serialize, Clone)]
+#[derive(Deserialize, Serialize, Clone, Debug, PartialEq, Eq, PartialOrd)]
 pub struct SongDetails {
     name: String,
     artist: Option<String>,
