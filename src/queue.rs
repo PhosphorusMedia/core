@@ -1,4 +1,7 @@
-use crate::{song::{Song, SongDetails}, playlist_manager::Playlist};
+use crate::{
+    playlist_manager::Playlist,
+    song::{Song, SongDetails},
+};
 
 /// Handles a reproduction queue
 pub struct QueueManager {
@@ -91,6 +94,7 @@ impl QueueManager {
     /// Removes every song from the queue
     pub fn clear(&mut self) {
         self.songs.clear();
+        self.current = 0;
     }
 
     /// Removes all remaining songs in the queue
@@ -105,7 +109,7 @@ impl QueueManager {
     /// that should be the `current` one after the queue update.
     /// If the value excedes playlist size, `current` is set to
     /// the latter, so the queue should look like fully already played.
-    /// 
+    ///
     /// #### NOTE
     /// A playlist reference is received, and every song has
     /// to be cloned to be pushed in the queue.
