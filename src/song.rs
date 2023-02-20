@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 /// Represents a song. A Song is any file which can
 /// be reproduced.
-#[derive(Deserialize, Serialize, Clone)]
+#[derive(Deserialize, Serialize, Clone, Debug, PartialOrd, Default)]
 pub struct Song {
     /// Position of the file in the file system
     #[serde(skip)]
