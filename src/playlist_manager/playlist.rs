@@ -51,6 +51,10 @@ impl Playlist {
         &self.songs
     }
 
+    pub fn songs_mut(&mut self) -> &mut Vec<Song> {
+        &mut self.songs
+    }
+
     /// Adds `song` to the playlist
     pub fn add(&mut self, song: Song) {
         self.songs.push(song);

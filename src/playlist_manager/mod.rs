@@ -59,6 +59,10 @@ impl PlaylistManager {
         &self.playlists
     }
 
+    pub fn playlists_mut(&mut self) -> &mut Vec<Playlist> {
+        &mut self.playlists
+    }
+
     /// Returns all playlist names
     pub fn names(&self) -> Vec<&str> {
         self.playlists.iter().map(|p| p.name()).collect()
