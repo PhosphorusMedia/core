@@ -27,20 +27,17 @@ impl Display for PlaylistManagerError {
 
 impl std::error::Error for PlaylistManagerError {}
 
-const PLAYLIST_DATA: &'static str = "playlists";
-const SONGS_DATA: &'static str = "songs";
-
 pub struct PlaylistManager {
-    base_config_dir: OsString,
+    songs_meta: OsString,
+    playlists_meta: OsString,
     playlists: Vec<Playlist>,
 }
 
 impl PlaylistManager {
-    pub fn load(base_config_dir: OsString) -> Result<Self, Box<dyn std::error::Error>> {
+    pub fn load(songs_meta: OsString, playlists_meta: OsString) -> Result<Self, Box<dyn std::error::Error>> {
         let mut playlists = vec![];
 
-        let mut path = PathBuf::from(&base_config_dir);
-        path.push(PLAYLIST_DATA);
+        let path = PathBuf::from(&playlists_meta);
         let files = std::fs::read_dir(&path)?;
 
         for file in files {
@@ -50,7 +47,8 @@ impl PlaylistManager {
         }
 
         Ok(Self {
-            base_config_dir,
+            songs_meta,
+            playlists_meta,
             playlists,
         })
     }
@@ -68,6 +66,7 @@ impl PlaylistManager {
         self.playlists.iter().map(|p| p.name()).collect()
     }
 
+    /// Returns a vector of all the song saved in any playlist.
     fn songs(&self) -> Vec<&Song> {
         let mut songs: HashMap<&OsString, &Song> = HashMap::new();
 
@@ -83,11 +82,10 @@ impl PlaylistManager {
 
 impl Drop for PlaylistManager {
     fn drop(&mut self) {
+        // For any song still in a playslist make sure that its meta file
+        // exits
         let songs = self.songs();
-        let mut songs_meta = PathBuf::new();
-        songs_meta.push(&self.base_config_dir);
-        songs_meta.push(SONGS_DATA);
-
+        let mut songs_meta = PathBuf::from(&self.songs_meta);
         for song in songs {
             let file_name = crate::file_name_from_song(song);
             songs_meta.push(file_name);
@@ -98,10 +96,8 @@ impl Drop for PlaylistManager {
             songs_meta.pop();
         }
 
-        let mut playlist_meta = PathBuf::new();
-        playlist_meta.push(&self.base_config_dir);
-        playlist_meta.push(PLAYLIST_DATA);
-
+        // For any playlist make sure its meta file exists
+        let mut playlist_meta = PathBuf::from(&self.playlists_meta);
         for playlist in self.playlists.iter() {
             let file_name = crate::file_name_from_playlist(playlist);
             playlist_meta.push(file_name);
