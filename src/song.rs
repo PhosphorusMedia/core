@@ -106,8 +106,6 @@ impl SongDetails {
         let file = match std::fs::read_to_string(details) {
             Ok(file) => file,
             Err(_err) => {
-                eprintln!("{}", _err);
-                std::process::exit(1);
                 return SongDetails::default();
             }
         };
