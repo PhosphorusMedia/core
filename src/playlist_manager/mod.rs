@@ -1,5 +1,7 @@
 use std::{collections::HashMap, ffi::OsString, fmt::Display, path::PathBuf};
 
+use chrono::Utc;
+
 use crate::song::Song;
 
 pub use self::playlist::Playlist;
@@ -27,6 +29,8 @@ impl Display for PlaylistManagerError {
 
 impl std::error::Error for PlaylistManagerError {}
 
+pub const ALL_SONGS: &'static str = "All songs";
+
 pub struct PlaylistManager {
     songs_meta: OsString,
     playlists_meta: OsString,
@@ -37,8 +41,7 @@ impl PlaylistManager {
     pub fn load(songs_meta: OsString, playlists_meta: OsString) -> Result<Self, Box<dyn std::error::Error>> {
         let mut playlists = vec![];
 
-        let path = PathBuf::from(&playlists_meta);
-        let files = std::fs::read_dir(&path)?;
+        let files = std::fs::read_dir(&playlists_meta)?;
 
         for file in files {
             let file = file?;
@@ -53,6 +56,28 @@ impl PlaylistManager {
         })
     }
 
+    /// Ensures that basic playlists are loaded and creates them if they don't
+    /// already exists. Basic playlists are: playlists of all downloaded songs
+    /// (named `All songs`)
+    pub fn ensure_basics(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+        if !self.names().contains(&ALL_SONGS) {
+            let mut playlist = Playlist::new(ALL_SONGS, Utc::now());
+            // Loads all downloaded songs and their metadata
+            let songs_meta = std::fs::read_dir(&self.songs_meta)?;
+            for song_meta in songs_meta {
+                if let Ok(song_meta) = song_meta {
+                    let song = Song::load(serde_json::from_str(
+                        &std::fs::read_to_string(song_meta.path())?
+                    )?);
+                    playlist.add(song);
+                }
+            }
+            self.playlists.push(playlist);
+        }
+
+        Ok(())
+    }
+
     pub fn playlists(&self) -> &Vec<Playlist> {
         &self.playlists
     }
@@ -64,6 +89,17 @@ impl PlaylistManager {
     /// Returns all playlist names
     pub fn names(&self) -> Vec<&str> {
         self.playlists.iter().map(|p| p.name()).collect()
+    }
+
+    /// Addds `song` to the playlist named `playlist`, but only if this exits.
+    /// Nothing is done otherwise.
+    pub fn add_to(&mut self, song: Song, playlist: &str) {
+        for pl in &mut self.playlists {
+            if pl.name() == playlist {
+                pl.add(song);
+                break;
+            }
+        }
     }
 
     /// Returns a vector of all the song saved in any playlist.

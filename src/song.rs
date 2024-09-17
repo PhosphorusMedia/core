@@ -23,6 +23,16 @@ pub struct Song {
 }
 
 impl Song {
+    pub fn new(path: &str, details_path: &str, details: SongDetails) -> Self {
+        Self {
+            path: OsString::from(path),
+            details_path: OsString::from(details_path),
+            path_string: path.to_string(),
+            details_path_string: details_path.to_string(),
+            details
+        }
+    }
+
     pub fn load(mut self) -> Self {
         self.path = OsString::from(&self.path_string);
         self.details_path = OsString::from(&self.details_path_string);
@@ -42,6 +52,10 @@ impl Song {
 
     pub fn details_mut(&mut self) -> &mut SongDetails {
         &mut self.details
+    }
+
+    pub fn to_json_str(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }
 
@@ -75,11 +89,25 @@ impl Default for SongDetails {
 }
 
 impl SongDetails {
+    pub fn new(name: &str, artist: Option<&str>, year: Option<u16>, duration: Option<Duration>) -> Self {
+        Self {
+            name: name.to_string(),
+            artist: match artist {
+                Some(artist) => Some(artist.to_string()),
+                None => None,
+            },
+            year,
+            duration
+        }
+    }
+
     /// Loads song details from a config file
     pub fn load(details: &OsString) -> Self {
         let file = match std::fs::read_to_string(details) {
             Ok(file) => file,
             Err(_err) => {
+                eprintln!("{}", _err);
+                std::process::exit(1);
                 return SongDetails::default();
             }
         };

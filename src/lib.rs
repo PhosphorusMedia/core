@@ -19,6 +19,13 @@ pub fn file_name_from_song(song: &song::Song) -> String {
         .replace(" ", "_")
 }
 
+/// As `file_name_from_song` by takes in input only name and artist of that song.
+pub fn file_name_from_basics(song_name: &str, song_artist: &str) -> String {
+    format!("{}--{}.json", song_name, song_artist)
+        .to_lowercase()
+        .replace(" ", "_")
+}
+
 /// Returnes the name that can represent the provided playlist
 ///
 /// # Example
