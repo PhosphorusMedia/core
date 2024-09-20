@@ -1,4 +1,7 @@
-use std::{ffi::OsString, time::Duration};
+use std::{
+    ffi::OsString,
+    time::Duration,
+};
 
 use serde::{Deserialize, Serialize};
 
@@ -29,7 +32,7 @@ impl Song {
             details_path: OsString::from(details_path),
             path_string: path.to_string(),
             details_path_string: details_path.to_string(),
-            details
+            details,
         }
     }
 
@@ -40,10 +43,14 @@ impl Song {
         self
     }
 
-    /// Returns the position of the song in
-    /// the file system
+    /// Returns the position of the song in the file system.
     pub fn path(&self) -> &OsString {
         &self.path
+    }
+
+    /// Returns the position of the song_meta file in the file system.
+    pub fn details_path(&self) -> &OsString {
+        &self.details_path
     }
 
     pub fn details(&self) -> &SongDetails {
@@ -89,7 +96,12 @@ impl Default for SongDetails {
 }
 
 impl SongDetails {
-    pub fn new(name: &str, artist: Option<&str>, year: Option<u16>, duration: Option<Duration>) -> Self {
+    pub fn new(
+        name: &str,
+        artist: Option<&str>,
+        year: Option<u16>,
+        duration: Option<Duration>,
+    ) -> Self {
         Self {
             name: name.to_string(),
             artist: match artist {
@@ -97,7 +109,7 @@ impl SongDetails {
                 None => None,
             },
             year,
-            duration
+            duration,
         }
     }
 
