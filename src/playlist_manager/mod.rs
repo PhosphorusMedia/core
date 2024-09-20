@@ -38,7 +38,10 @@ pub struct PlaylistManager {
 }
 
 impl PlaylistManager {
-    pub fn load(songs_meta: OsString, playlists_meta: OsString) -> Result<Self, Box<dyn std::error::Error>> {
+    pub fn load(
+        songs_meta: OsString,
+        playlists_meta: OsString,
+    ) -> Result<Self, Box<dyn std::error::Error>> {
         let mut playlists = vec![];
 
         let files = std::fs::read_dir(&playlists_meta)?;
@@ -66,9 +69,9 @@ impl PlaylistManager {
             let songs_meta = std::fs::read_dir(&self.songs_meta)?;
             for song_meta in songs_meta {
                 if let Ok(song_meta) = song_meta {
-                    let song = Song::load(serde_json::from_str(
-                        &std::fs::read_to_string(song_meta.path())?
-                    )?);
+                    let song = Song::load(serde_json::from_str(&std::fs::read_to_string(
+                        song_meta.path(),
+                    )?)?);
                     playlist.add(song);
                 }
             }
@@ -123,8 +126,7 @@ impl Drop for PlaylistManager {
         let songs = self.songs();
         let mut songs_meta = PathBuf::from(&self.songs_meta);
         for song in songs {
-            let file_name = crate::file_name_from_song(song);
-            songs_meta.push(file_name);
+            songs_meta.push(song.details_path());
             let _ = std::fs::write(
                 songs_meta.as_path(),
                 serde_json::to_string(song.details()).unwrap(),
