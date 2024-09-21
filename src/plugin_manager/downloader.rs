@@ -3,12 +3,15 @@ use std::io::{BufRead, BufReader};
 use std::process::Child;
 use std::sync::mpsc::{Receiver, Sender};
 
+use crate::song::Song;
+use crate::TrackInfo;
+
 /// The prototype of functions that are used to initialize and update progress
 /// bars associated to downloads. These functions should execute at least until
 /// the file has done downloading, otherwise it won't proceed. The receiver is
 /// for receiving the progress value from the download process while sender allows
 /// passing that value or another to nay other custome end of the application.
-pub type ProgressFollowerFn = fn(Receiver<f32> /*, Sender<f32>*/);
+pub type ProgressFollowerFn = fn(Receiver<f32>, Sender<TrackInfo>, Song);
 
 /// The prototype of functions accepted by
 /// `Downloaders`s instances

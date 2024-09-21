@@ -1,5 +1,6 @@
 use playlist_manager::Playlist;
 use song::Song;
+use sanitise_file_name::sanitise;
 
 pub mod playlist_manager;
 pub mod plugin_manager;
@@ -14,8 +15,8 @@ pub mod song;
 /// and spaces are replaced by `_`.
 pub fn file_name_from_song(song: &song::Song) -> String {
     let details = song.details();
-    let name = details.name();
-    let artist = details.artist().unwrap_or("");
+    let name = sanitise(details.name());
+    let artist = sanitise(details.artist().unwrap_or(""));
     format!("{}--{}", name, artist)
         .to_lowercase()
         .replace(" ", "_")
@@ -23,7 +24,7 @@ pub fn file_name_from_song(song: &song::Song) -> String {
 
 /// As `file_name_from_song` by takes in input only name and artist of that song.
 pub fn file_name_from_basics(song_name: &str, song_artist: &str) -> String {
-    format!("{}--{}", song_name, song_artist)
+    format!("{}--{}", sanitise(song_name), sanitise(song_artist))
         .to_lowercase()
         .replace(" ", "_")
 }
@@ -35,7 +36,7 @@ pub fn file_name_from_basics(song_name: &str, song_artist: &str) -> String {
 /// `playlist.json`. Everything is lowercase and spaces are replaced by
 /// `_`.
 pub fn file_name_from_playlist(playlist: &Playlist) -> String {
-    format!("{}.json", playlist.name())
+    format!("{}.json", sanitise(playlist.name()))
         .to_lowercase()
         .replace(" ", "_")
 }
@@ -52,4 +53,6 @@ pub enum TrackInfo {
     /// The download for the song is terminated. Terminated should mean that the
     /// file is totally downloaded and the raw media file is ready to be read
     Finished(Song),
+    /// The download for the song is failed.
+    Failed(Song, String),
 }

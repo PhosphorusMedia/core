@@ -1,7 +1,4 @@
-use std::{
-    ffi::OsString,
-    time::Duration,
-};
+use std::{ffi::OsString, time::Duration};
 
 use serde::{Deserialize, Serialize};
 

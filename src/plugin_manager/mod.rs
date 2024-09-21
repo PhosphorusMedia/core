@@ -1,10 +1,12 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::mpsc::Sender};
 
 pub mod downloader;
 pub mod error;
 pub mod plugin;
 pub mod query;
 pub mod streamer;
+use crate::{song::Song, TrackInfo};
+
 use {downloader::*, error::*, plugin::*, query::*};
 
 /// Manages the registered plugins and provides a unique
@@ -101,6 +103,8 @@ impl PluginManager {
         url: &str,
         file_name: &str,
         progress_follower: ProgressFollowerFn,
+        progress_forwarder: Sender<TrackInfo>,
+        song: Song,
     ) -> Result<String, Box<dyn std::error::Error>> {
         let default = self.default.as_ref().unwrap();
         let plugin = self.plugins.get(default).unwrap();
@@ -108,7 +112,7 @@ impl PluginManager {
 
         let (tx, rx) = std::sync::mpsc::channel();
 
-        let pf = std::thread::spawn(move || progress_follower(rx));
+        let pf = std::thread::spawn(move || progress_follower(rx, progress_forwarder, song));
         let file_name = downloader.download(url, file_name, tx)?;
         if let Err(_) = pf.join() {
             return Err(Box::new(PluginError::DownloadError(format!(
