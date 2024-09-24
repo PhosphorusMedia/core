@@ -115,7 +115,11 @@ impl QueueManager {
     /// to be cloned to be pushed in the queue.
     pub fn set_on_playlist(&mut self, playlist: &Playlist, active: usize) {
         self.clear();
-        for song in playlist.songs() {
+        let song_iter = playlist.songs().iter().as_slice();
+        for song in &song_iter[active..playlist.songs().len()] {
+            self.push(song.clone());
+        }
+        for song in &song_iter[..active] {
             self.push(song.clone());
         }
 
