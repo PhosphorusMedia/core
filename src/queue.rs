@@ -6,6 +6,8 @@ use crate::{
 /// Handles a reproduction queue
 pub struct QueueManager {
     songs: Vec<Song>,
+    /// The index of the selected song in the queue, e.g. the one that is being
+    /// played.
     current: usize,
 }
 
@@ -41,16 +43,13 @@ impl QueueManager {
         self.songs.iter().map(|song| song.details()).collect()
     }
 
-    /// Returns a list holding details about current and
-    /// next songs
+    /// Returns a list holding details about current and next songs
     pub fn pending(&self) -> Vec<&SongDetails> {
         if self.songs.is_empty() {
             return vec![];
         }
         let mut slice = self.songs.as_slice();
-        if self.current > 0 {
-            slice = &slice[self.current - 1..];
-        }
+        slice = &slice[self.current - 1..];
         slice.iter().map(|song| song.details()).collect()
     }
 
@@ -59,11 +58,11 @@ impl QueueManager {
         self.songs.push(song)
     }
 
-    /// Returns the next song in the queue, is there is one
+    /// Returns the next song in the queue, if there is one
     pub fn next(&mut self) -> Option<&Song> {
-        if self.current < self.songs.len() {
-            let song = self.songs.get(self.current);
+        if self.current + 1 < self.songs.len() {
             self.current += 1;
+            let song = self.songs.get(self.current);
             return song;
         }
 
@@ -105,26 +104,26 @@ impl QueueManager {
     }
 
     /// Queue content is set to a playlist. Previous content is
-    /// removed. The `active` parameter indicates what's the song
-    /// that should be the `current` one after the queue update.
-    /// If the value excedes playlist size, `current` is set to
+    /// removed. The `index` parameter indicates what's the song
+    /// that should be the 'current' one after the queue update.
+    /// If the value excedes playlist size, 'current' is set to
     /// the latter, so the queue should look like fully already played.
     ///
     /// #### NOTE
     /// A playlist reference is received, and every song has
     /// to be cloned to be pushed in the queue.
-    pub fn set_on_playlist(&mut self, playlist: &Playlist, active: usize) {
+    pub fn set_on_playlist(&mut self, playlist: &Playlist, index: usize) {
         self.clear();
-        let song_iter = playlist.songs().iter().as_slice();
-        for song in &song_iter[active..playlist.songs().len()] {
+        let song_iter = playlist.songs().as_slice();
+        for song in &song_iter[index..playlist.songs().len()] {
             self.push(song.clone());
         }
-        for song in &song_iter[..active] {
+        for song in &song_iter[..index] {
             self.push(song.clone());
         }
 
-        if active < playlist.songs().len() {
-            self.current = active;
+        if index < playlist.songs().len() {
+            self.current = 0;
         } else {
             self.current = playlist.songs().len();
         }
